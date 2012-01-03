@@ -12,7 +12,7 @@ import ctypes, sys
 _libdsp = None
 for directory in sys.path:
     try:
-        _libdsp = np.ctypeslib.load_library('libdsp', directory)
+        _libdsp = np.ctypeslib.load_library('libembedded_dsp', directory)
         break
     except:
         pass
