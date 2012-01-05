@@ -6,5 +6,6 @@ A collection of tools used in an embedded pulse oximeter. All techniques are tar
 List of Modules
 ---------------
  * Lattice Wave Filter
- * Quadrature Delineator
  * Generice Peak Detector
+ * Quadrature Delineator
+ * PPG Specific Delineator (including log conversion)
