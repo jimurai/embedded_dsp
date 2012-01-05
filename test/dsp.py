@@ -114,7 +114,7 @@ class DD(ctypes.Structure):
 				("log", ctypes.c_int32),
 				("time", ctypes.c_uint32)]
 class QUADRATURE(ctypes.Structure):
-	_fields_ = [("phase", ctypes.c_uint8*2),
+	_fields_ = [("state", ctypes.c_uint8*2),
 				("peak", ctypes.c_int32*2),
 				("time", ctypes.c_uint32*4),
 				("log", ctypes.c_uint32*4)]
