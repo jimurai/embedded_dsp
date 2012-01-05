@@ -49,101 +49,6 @@ _libdsp.lwdf_read_lpf.restype = ctypes.c_int32
 # LWDF_TYPE lwdf_read_hpf(LWDF_FILTER* filter)
 _libdsp.lwdf_read_hpf.argtypes = [ctypes.c_void_p]
 _libdsp.lwdf_read_hpf.restype = ctypes.c_int32
-
-# Peak Detector memory structure
-class PD(ctypes.Structure):
-	_fields_ = [("peak", ctypes.c_int32),
-				("output", ctypes.c_int32),
-				("delta", ctypes.c_int32),
-				("mode", ctypes.c_char),
-				("state", ctypes.c_char)]
-				
-# PEAK_DETECTOR* pd_new(void);
-_libdsp.pd_new.argtypes = []
-_libdsp.pd_new.restype = ctypes.POINTER(PD)
-			
-# void pd_init(PEAK_DETECTOR* detector,PEAK_VALUE delta);
-_libdsp.pd_init.argtypes = [	ctypes.POINTER(PD),\
-										ctypes.c_int32]
-_libdsp.pd_init.restype =		None
-
-# void pd_del(PEAK_DETECTOR* detector);
-_libdsp.pd_del.argtypes = [ctypes.POINTER(PD)]
-_libdsp.pd_del.restype = None
-
-# void pd_write(PEAK_DETECTOR* detector, PEAK_VALUE value);
-_libdsp.pd_write.argtypes = [	ctypes.POINTER(PD),\
-								ctypes.c_int32]
-_libdsp.pd_write.restype =		None
-
-# void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_MODE mode);
-_libdsp.pd_reset.argtypes = [	ctypes.POINTER(PD),\
-								ctypes.c_int32,\
-								ctypes.c_char]
-_libdsp.pd_reset.restype =		None
-
-class IPD(ctypes.Structure):
-	_fields_ = [("down", ctypes.c_uint32),
-				("up", ctypes.c_uint32),
-				("hold", ctypes.c_uint32),
-				("output", ctypes.c_uint32),
-				("detector", PD)]
-				
-# I_PEAK_DETECTOR* ipd_new(void);
-_libdsp.ipd_new.argtypes = []
-_libdsp.ipd_new.restype = ctypes.POINTER(IPD)
-			
-# void ipd_init(I_PEAK_DETECTOR* detector,PEAK_VALUE delta);
-_libdsp.ipd_init.argtypes = [	ctypes.POINTER(IPD),\
-								ctypes.c_int32]
-_libdsp.ipd_init.restype =		None
-
-# void ipd_del(I_PEAK_DETECTOR* detector);
-_libdsp.ipd_del.argtypes = [ctypes.POINTER(IPD)]
-_libdsp.ipd_del.restype = None
-
-# void ipd_write(I_PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_VALUE integrand);
-_libdsp.ipd_write.argtypes = [	ctypes.POINTER(IPD),\
-								ctypes.c_int32,\
-								ctypes.c_int32]
-_libdsp.ipd_write.restype =		None
-
-# PPG Quadrature Delineation
-class DD(ctypes.Structure):
-	_fields_ = [("value", ctypes.c_int32),
-				("log", ctypes.c_int32),
-				("time", ctypes.c_uint32)]
-class QUADRATURE(ctypes.Structure):
-	_fields_ = [("state", ctypes.c_uint8*2),
-				("peak", ctypes.c_int32*2),
-				("time", ctypes.c_uint32*4),
-				("log", ctypes.c_uint32*4)]
-class DELINEATOR(ctypes.Structure):
-	_fields_ = [("previous_value", ctypes.c_int32),
-				("delta", ctypes.c_int32*2),
-				("track", DD*2),
-				("output", DD),
-				("quad", QUADRATURE)]
-
-# DELINEATOR* quad_new(void);
-_libdsp.quad_new.argtypes = []
-_libdsp.quad_new.restype = ctypes.POINTER(DELINEATOR)
-
-# void quad_del(DELINEATOR* delineator);
-_libdsp.quad_del.argtypes = [ctypes.POINTER(DELINEATOR)]
-_libdsp.quad_del.restype = None
-				
-# void quad_init(DELINEATOR* delineator, DELIN_VALUE delta_raw, DELIN_VALUE delta_diff);
-_libdsp.quad_init.argtypes = [	ctypes.POINTER(DELINEATOR),\
-								ctypes.c_int32,\
-								ctypes.c_int32]
-_libdsp.quad_init.restype =		None
-
-# uint8_t quad_write(DELINEATOR* delineator, DELIN_VALUE value);
-_libdsp.quad_write.argtypes = [	ctypes.POINTER(DELINEATOR),\
-								ctypes.c_int32]
-_libdsp.quad_write.restype =	ctypes.c_uint8
-
 class Filter():
 	def __init__(self, order=3, wn=0.01, rp=1, rs=60, ftype='butter'):
 		if order%2 == 0:
@@ -214,6 +119,38 @@ class Filter():
 		filter_output = _libdsp.lwdf_read(self.filter)
 		return filter_output
 
+# Peak Detector memory structure
+class PD(ctypes.Structure):
+	_fields_ = [("peak", ctypes.c_int32),
+				("output", ctypes.c_int32),
+				("delta", ctypes.c_int32),
+				("mode", ctypes.c_char),
+				("state", ctypes.c_char)]
+				
+# PEAK_DETECTOR* pd_new(void);
+_libdsp.pd_new.argtypes = []
+_libdsp.pd_new.restype = ctypes.POINTER(PD)
+			
+# void pd_init(PEAK_DETECTOR* detector,PEAK_VALUE delta);
+_libdsp.pd_init.argtypes = [	ctypes.POINTER(PD),\
+										ctypes.c_int32]
+_libdsp.pd_init.restype =		None
+
+# void pd_del(PEAK_DETECTOR* detector);
+_libdsp.pd_del.argtypes = [ctypes.POINTER(PD)]
+_libdsp.pd_del.restype = None
+
+# void pd_write(PEAK_DETECTOR* detector, PEAK_VALUE value);
+_libdsp.pd_write.argtypes = [	ctypes.POINTER(PD),\
+								ctypes.c_int32]
+_libdsp.pd_write.restype =		None
+
+# void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_MODE mode);
+_libdsp.pd_reset.argtypes = [	ctypes.POINTER(PD),\
+								ctypes.c_int32,\
+								ctypes.c_char]
+_libdsp.pd_reset.restype =		None
+
 class PeakDetector():
 	def __init__(self, delta=50):
 		self.detector = _libdsp.pd_new()
@@ -224,6 +161,32 @@ class PeakDetector():
 
 	def write(self,value):
 		_libdsp.pd_write(self.detector,value)
+		
+class IPD(ctypes.Structure):
+	_fields_ = [("down", ctypes.c_uint32),
+				("up", ctypes.c_uint32),
+				("hold", ctypes.c_uint32),
+				("output", ctypes.c_uint32),
+				("detector", PD)]
+				
+# I_PEAK_DETECTOR* ipd_new(void);
+_libdsp.ipd_new.argtypes = []
+_libdsp.ipd_new.restype = ctypes.POINTER(IPD)
+			
+# void ipd_init(I_PEAK_DETECTOR* detector,PEAK_VALUE delta);
+_libdsp.ipd_init.argtypes = [	ctypes.POINTER(IPD),\
+								ctypes.c_int32]
+_libdsp.ipd_init.restype =		None
+
+# void ipd_del(I_PEAK_DETECTOR* detector);
+_libdsp.ipd_del.argtypes = [ctypes.POINTER(IPD)]
+_libdsp.ipd_del.restype = None
+
+# void ipd_write(I_PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_VALUE integrand);
+_libdsp.ipd_write.argtypes = [	ctypes.POINTER(IPD),\
+								ctypes.c_int32,\
+								ctypes.c_int32]
+_libdsp.ipd_write.restype =		None
 
 class IPeakDetector():
 	def __init__(self, delta=50):
@@ -236,13 +199,82 @@ class IPeakDetector():
 	def write(self,value,integrand):
 		_libdsp.ipd_write(self.detector,value,integrand)
 
+# PPG Quadrature Delineation
+class DELINEATOR(ctypes.Structure):
+	_fields_ = [("state", ctypes.c_uint8*2),
+				("delta", ctypes.c_int32*2),
+				("peak", ctypes.c_int32*2)]
+
+# DELINEATOR* quad_new(void);
+_libdsp.quad_new.argtypes = []
+_libdsp.quad_new.restype = ctypes.POINTER(DELINEATOR)
+
+# void quad_del(DELINEATOR* delineator);
+_libdsp.quad_del.argtypes = [ctypes.POINTER(DELINEATOR)]
+_libdsp.quad_del.restype = None
+				
+# void quad_init(DELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx);
+_libdsp.quad_init.argtypes = [	ctypes.POINTER(DELINEATOR),\
+								ctypes.c_int32,\
+								ctypes.c_int32]
+_libdsp.quad_init.restype =		None
+
+# uint8_t quad_write(DELINEATOR* delineator, DELIN_VALUE x, DELIN_VALUE dx);
+_libdsp.quad_write.argtypes = [	ctypes.POINTER(DELINEATOR),\
+								ctypes.c_int32,\
+								ctypes.c_int32]
+_libdsp.quad_write.restype =	ctypes.c_uint8
+
 class QuadDelineator():
-	def __init__(self, delta_raw=50, delta_diff=1):
+	def __init__(self, delta_x=50, delta_dx=1):
 		self.delineator = _libdsp.quad_new()
-		_libdsp.quad_init(self.delineator,delta_raw,delta_diff)
+		_libdsp.quad_init(self.delineator,delta_x,delta_dx)
 
 	def __del__(self):
 		_libdsp.quad_del(self.delineator)
 
-	def write(self,value):
-		return _libdsp.quad_write(self.delineator,value)
+	def write(self,x,dx):
+		return _libdsp.quad_write(self.delineator,x,dx)
+
+# PPG Quadrature Delineation
+class DD(ctypes.Structure):
+	_fields_ = [("x", ctypes.c_int32),
+				("dx", ctypes.c_int32),
+				("t", ctypes.c_uint32)]
+class PPGDELINEATOR(ctypes.Structure):
+	_fields_ = [("x", ctypes.c_int32*2),
+				("track", DD*2),
+				("output", DD),
+				("time", ctypes.c_uint32*4),
+				("value", ctypes.c_int32*4),
+				("delineator", DELINEATOR)]
+# PPGDELINEATOR* ppgd_new(void);
+_libdsp.ppgd_new.argtypes = []
+_libdsp.ppgd_new.restype = ctypes.POINTER(PPGDELINEATOR)
+
+# void ppgd_del(PPGDELINEATOR* delineator);
+_libdsp.ppgd_del.argtypes = [ctypes.POINTER(PPGDELINEATOR)]
+_libdsp.ppgd_del.restype = None
+				
+# void ppgd_init(PPGDELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx);
+_libdsp.ppgd_init.argtypes = [	ctypes.POINTER(PPGDELINEATOR),\
+								ctypes.c_int32,\
+								ctypes.c_int32]
+_libdsp.ppgd_init.restype =		None
+
+# uint8_t ppgd_write(PPGDELINEATOR* delineator, DELIN_VALUE x);
+_libdsp.ppgd_write.argtypes = [	ctypes.POINTER(PPGDELINEATOR),\
+								ctypes.c_int32]
+_libdsp.ppgd_write.restype =	ctypes.c_uint8
+
+class PPGDelineator():
+	def __init__(self, delta_x=50, delta_dx=1):
+		self.delineator = _libdsp.ppgd_new()
+		_libdsp.ppgd_init(self.delineator,delta_x,delta_dx)
+
+	def __del__(self):
+		_libdsp.ppgd_del(self.delineator)
+
+	def write(self,x):
+		return _libdsp.ppgd_write(self.delineator,x)
+

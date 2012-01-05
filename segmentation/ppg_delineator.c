@@ -40,10 +40,13 @@ uint8_t ppgd_write(PPG_DELINEATOR* delineator, DELIN_VALUE value) {
 	uint8_t result = 0;
 
 	// Log derivative calculation
-	DELIN_VALUE dif = value - delineator->x[0];
-	DELIN_VALUE logd = (value + delineator->x[0]);
+//	DELIN_VALUE dif = value - delineator->x[0];
+//	DELIN_VALUE logd = (value + delineator->x[0]);
+	DELIN_VALUE dif = value - delineator->x[1];
+	DELIN_VALUE logd = (delineator->x[0]);
+	if (logd==0) logd=1<<8;
 	// Log derivative conversion
-	logd = (dif<<16)/((logd+(1<<7))>>8);
+	logd = ((dif<<15)+((logd+(1<<6))>>7))/((logd+(1<<7))>>8);
 	// Store history for future Haar calculations
 	delineator->x[1] = delineator->x[0];
 	delineator->x[0] = value;
@@ -61,26 +64,26 @@ uint8_t ppgd_write(PPG_DELINEATOR* delineator, DELIN_VALUE value) {
 	// Process integrators with delineator state machine outputs
 
 	// - Nominal peak detector
-	if ((res&QD_STATE_TRACKING)==0) {
+	if ((res&QD_STATE_TRACKING)!=0) {
 		// Track log conversion and integrator outputs
-		delineator->track[0].x = logd;
+		delineator->track[0].dx = logd;
 		if ((res&QD_STATE_PHASE)==0) {
 			delineator->track[0].t = delineator->time[3];
-			delineator->track[0].dx = delineator->value[3];
+			delineator->track[0].x = delineator->value[3];
 			// Hold other integrators in reset
 			delineator->time[1]=0;
 			delineator->value[1]=0;
 		}
 		else {
 			delineator->track[0].t = delineator->time[2];
-			delineator->track[0].dx = delineator->value[2];
+			delineator->track[0].x = delineator->value[2];
 			// Hold other integrators in reset
 			delineator->time[0]=0;
 			delineator->value[0]=0;
 		}
 
 	}
-	if ((res&QD_STATE_VALID)==0) {
+	if ((res&QD_STATE_VALID)!=0) {
 		// Copy tracked values to output register
 		delineator->output = delineator->track[0];
 		// Remember phase has been changed since last peak was validated
@@ -89,19 +92,19 @@ uint8_t ppgd_write(PPG_DELINEATOR* delineator, DELIN_VALUE value) {
 	}
 
 	// - Derivative peak detector
-	if ((res&(QD_STATE_TRACKING<<4))==0) {
+	if ((res&(QD_STATE_TRACKING<<4))!=0) {
 		// Track log conversion and integrator outputs
-		delineator->track[1].x = logd;
+		delineator->track[1].dx = logd;
 		if ((res&(QD_STATE_PHASE<<4))==0) {
 			delineator->track[1].t = delineator->time[0];
-			delineator->track[1].dx = delineator->value[0];
+			delineator->track[1].x = delineator->value[0];
 			// Hold other integrators in reset
 			delineator->time[3]=0;
 			delineator->value[3]=0;
 		}
 		else {
 			delineator->track[1].t = delineator->time[1];
-			delineator->track[1].dx = delineator->value[1];
+			delineator->track[1].x = delineator->value[1];
 			// Hold other integrators in reset
 			delineator->time[2]=0;
 			delineator->value[2]=0;
@@ -109,12 +112,12 @@ uint8_t ppgd_write(PPG_DELINEATOR* delineator, DELIN_VALUE value) {
 		}
 
 	}
-	if ((res&(QD_STATE_VALID<<4))==0) {
+	if ((res&(QD_STATE_VALID<<4))!=0) {
 		// Copy tracked values to output register
 		delineator->output = delineator->track[1];
 		// Remember phase has been changed since last peak was validated
-		if ((res&(QD_STATE_PHASE<<4))==0) result += 4;
-		else result += 3;
+		if ((res&(QD_STATE_PHASE<<4))==0) result += 8;
+		else result += 4;
 	}
 
 	return result;

@@ -97,5 +97,5 @@ uint8_t quad_write(DELINEATOR* delineator, DELIN_VALUE x, DELIN_VALUE dx) {
 			delineator->state[1] |= QD_STATE_VALID;
 		}
 	}
-	return delineator->state[0] + (delineator->state[1]<<4);
+	return delineator->state[0] | (delineator->state[1]<<4);
 }
