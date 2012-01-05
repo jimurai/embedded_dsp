@@ -24,31 +24,20 @@ extern "C" {
 typedef uint32_t DELIN_TIME;
 typedef int32_t DELIN_VALUE;
 
-typedef struct delineation_data {
-	DELIN_VALUE value;
-	DELIN_VALUE log;
-	DELIN_TIME time;
-} DELIN_DATA;
-
-typedef struct delineation_quadrature {
-	uint8_t phase[2];
-	DELIN_VALUE peak[2];
-	DELIN_TIME time[4];
-	DELIN_VALUE log[4];
-} QUADRATURE;
+#define QD_STATE_PHASE		(1<<0)
+#define QD_STATE_TRACKING	(1<<1)
+#define QD_STATE_VALID		(1<<2)
 
 typedef struct delineator_machine {
-	DELIN_VALUE previous_value;
+	uint8_t state[2];
 	DELIN_VALUE delta[2];
-	DELIN_DATA track[2];
-	DELIN_DATA output;
-	QUADRATURE quad;
+	DELIN_VALUE peak[2];
 } DELINEATOR;
 
 DELINEATOR* quad_new(void);
 void quad_del(DELINEATOR* delineator);
-void quad_init(DELINEATOR* delineator, DELIN_VALUE delta_raw, DELIN_VALUE delta_diff);
-uint8_t quad_write(DELINEATOR* delineator, DELIN_VALUE value);
+void quad_init(DELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx);
+uint8_t quad_write(DELINEATOR* delineator, DELIN_VALUE x, DELIN_VALUE dx);
 
 #ifdef __cplusplus
 }
