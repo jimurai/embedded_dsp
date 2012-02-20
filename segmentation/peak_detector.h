@@ -24,30 +24,24 @@ extern "C" {
  *	Peak detector declarations
  */
 typedef int32_t PEAK_VALUE;
-typedef int8_t PEAK_MODE;
 typedef uint8_t PEAK_STATE;
 
-#define PD_STATE_TRACKING	0
-#define PD_STATE_HOLDING	1
-#define PD_STATE_VALID		2
-
-#define PD_MODE_OFF		0	// Unused
-#define PD_MODE_UP		1
-#define PD_MODE_DOWN	-1
+#define PD_STATE_T_RISE		0
+#define PD_STATE_V_RISE		1
+#define PD_STATE_T_FALL		2
+#define PD_STATE_V_FALL		3
 
 typedef struct peak_detector {
 	PEAK_VALUE peak;	// R
-	PEAK_VALUE output;	// R
 	PEAK_VALUE delta;	// R/W
-	PEAK_MODE mode;		// R/W
 	PEAK_STATE state;	// R
 } PEAK_DETECTOR;
 
 PEAK_DETECTOR* pd_new(void);
 void pd_init(PEAK_DETECTOR* detector,PEAK_VALUE delta);
 void pd_del(PEAK_DETECTOR* detector);
-void pd_write(PEAK_DETECTOR* detector, PEAK_VALUE value);
-void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_MODE mode);
+PEAK_STATE pd_write(PEAK_DETECTOR* detector, PEAK_VALUE value);
+void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_STATE state);
 
 
 #ifdef __cplusplus

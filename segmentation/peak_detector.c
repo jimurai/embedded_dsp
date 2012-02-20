@@ -15,7 +15,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <stdio.h>
 
 #include "peak_detector.h"
 
@@ -32,64 +31,53 @@ PEAK_DETECTOR* pd_new(void) {
 void pd_init(PEAK_DETECTOR* detector,PEAK_VALUE delta) {
 	// Initialise detector variables
 	detector->delta = delta;
-	detector->output = 0;
 	detector->peak = 0;
-	detector->state = PD_MODE_UP;
-	detector->mode = PD_STATE_HOLDING;
+	detector->state = PD_STATE_T_RISE;
 }
 void pd_del(PEAK_DETECTOR* detector) {
 	free(detector);
 }
-void pd_write(PEAK_DETECTOR* detector, PEAK_VALUE value) {
+PEAK_STATE pd_write(PEAK_DETECTOR* detector, PEAK_VALUE value) {
 	// State transitions
-	// Check if looking for a maximum
-	if (detector->mode==PD_MODE_UP) {
-		// Check for turning point
-		if (value > detector->peak) {
-			detector->state = PD_STATE_TRACKING;
-		}
-		// Check if previous peak validated
-		else if ((detector->peak-value) > detector->delta) {
-			detector->state = PD_STATE_VALID;
-		}
-		// Hold on to last peak value
-		else {
-			detector->state = PD_STATE_HOLDING;
-		}
-	}
-	else if (detector->mode==PD_MODE_DOWN) {
-		// Check for turning point
-		if (value < detector->peak) {
-			detector->state = PD_STATE_TRACKING;
-		}
-		// Check if previous peak validated
-		else if ((value-detector->peak) > detector->delta) {
-			detector->state = PD_STATE_VALID;
-		}
-		// Hold on to last peak value
-		else {
-			detector->state = PD_STATE_HOLDING;
-		}
-	}
-	// State dependent register transfers
 	switch (detector->state) {
-	case PD_STATE_TRACKING:
-		// Track input value
+	case PD_STATE_T_RISE:	// Track rising value
+		if (value<detector->peak)
+			detector->state = PD_STATE_V_RISE;
+		break;
+	case PD_STATE_V_RISE:	// Validate maxima
+		if (value>detector->peak)
+			detector->state = PD_STATE_T_RISE;
+		else if ((detector->peak-value)>detector->delta)
+			detector->state = PD_STATE_T_FALL;
+		break;
+	case PD_STATE_T_FALL:	// Track falling value
+		if (value>detector->peak)
+			detector->state = PD_STATE_V_FALL;
+		break;
+	case PD_STATE_V_FALL:	// Validate minima
+		if (value<detector->peak)
+			detector->state = PD_STATE_T_FALL;
+		else if ((value-detector->peak)>detector->delta)
+			detector->state = PD_STATE_T_RISE;
+		break;
+	default:
+		detector->state = PD_STATE_T_RISE;
+		break;
+	}
+	// State based register transfers
+	switch (detector->state) {
+	case PD_STATE_T_RISE:	// Tracking rising value
 		detector->peak = value;
 		break;
-	case PD_STATE_VALID:
-		// Latch peak to output register
-		detector->output = detector->peak;
-		// Toggle mode
-		if (detector->mode==PD_MODE_UP) detector->mode = PD_MODE_DOWN;
-		else detector->mode = PD_MODE_UP;
+	case PD_STATE_T_FALL:	// Tracking falling value
+		detector->peak = value;
 		break;
-	case PD_STATE_HOLDING:
 	default:
 		break;
 	}
+	return detector->state;
 }
-void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_MODE mode) {
+void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_STATE state) {
 	detector->peak = value;
-	detector->mode = mode;
+	detector->state = state;
 }

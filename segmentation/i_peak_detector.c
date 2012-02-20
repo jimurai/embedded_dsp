@@ -28,40 +28,56 @@ I_PEAK_DETECTOR* ipd_new(void) {
 }
 void ipd_init(I_PEAK_DETECTOR* detector, PEAK_VALUE delta) {
 	// Initialise detector variables
-	detector->down = 0;
-	detector->up = 0;
-	detector->hold = 0;
-	detector->output = 0;
+	detector->integrator[0] = 0;
+	detector->integrator[1] = 0;
+	detector->hold[0] = 0;
+	detector->hold[1] = 0;
+	detector->output[0] = 0;
+	detector->output[1] = 0;
+	detector->last_state = PD_STATE_T_RISE;
 	pd_init(&detector->detector,delta);
 }
 void ipd_del(I_PEAK_DETECTOR* detector) {
 	free(detector);
 }
-void ipd_write(I_PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_VALUE integrand) {
-	// Integrate the integrand (generally number of samples since last write = 1)
-	detector->up += integrand;
-	detector->down += integrand;
+uint8_t ipd_write(I_PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_VALUE integrand) {
 	// Process the peak detector
-	pd_write(&detector->detector,value);
+	PEAK_STATE state = pd_write(&detector->detector,value);
+	uint8_t output = 0;
+	// Maxima validated
+	if ((state==PD_STATE_T_FALL) && (detector->last_state==PD_STATE_V_RISE))
+		output = 1;
+	// Minima validated
+	if ((state==PD_STATE_T_RISE) && (detector->last_state==PD_STATE_V_FALL))
+		output = 2;
+	// Latch values
+	if (output!=0) {
+		detector->output[0] = detector->hold[0];
+		detector->output[1] = detector->hold[1];
+	}
 	// State dependent register transfers
-	switch (detector->detector.state) {
-	case PD_STATE_TRACKING:
-		// Track input value & reset alt integrator
-		if (detector->detector.mode==PD_MODE_UP) {
-			detector->hold = detector->up;
-			detector->down = 0;
-		}
-		else if (detector->detector.mode==PD_MODE_DOWN) {
-			detector->hold = detector->down;
-			detector->up = 0;
-		}
+	switch (state) {
+	case PD_STATE_T_RISE:	// Tracking rising value
+		detector->hold[0] = value;
+		detector->hold[1] = detector->integrator[0];
+		detector->integrator[1] = 0;
 		break;
-	case PD_STATE_VALID:
-		// Latch peak to output register
-		detector->output = detector->hold;
+	case PD_STATE_V_RISE:	// Validate maxima
 		break;
-	case PD_STATE_HOLDING:
+	case PD_STATE_T_FALL:	// Tracking falling value
+		detector->hold[0] = value;
+		detector->hold[1] = detector->integrator[1];
+		detector->integrator[0] = 0;
+		break;
+	case PD_STATE_V_FALL:	// Validate minima
+		break;
 	default:
 		break;
 	}
+	// Integrate the integrand (generally number of samples since last write = 1)
+	detector->integrator[0] += integrand;
+	detector->integrator[1] += integrand;
+	// Record the last state
+	detector->last_state=state;
+	return output;
 }

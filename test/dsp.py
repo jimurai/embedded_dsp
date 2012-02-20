@@ -100,7 +100,7 @@ class Filter():
 		alphas = []
 		types = []
 		for x in gammas:
-			print '{0:.10f}'.format(x)
+			# print '{0:.10f}'.format(x)
 			alpha = np.array((1,),dtype = np.uint16)
 			type = np.array((1,),dtype = np.uint8)
 			_libdsp.lwdf_gamma2alpha(x,alpha,type)
@@ -108,8 +108,8 @@ class Filter():
 			types.append(type)
 		alphas_out = np.asarray(alphas,dtype=np.uint16)
 		types_out = np.asarray(types,dtype=np.uint8)
-		print alphas_out.transpose()
-		print types_out.transpose()
+		print "uint16_t alphas[] = ", alphas_out.transpose().tolist()
+		print "uint8_t types[] = ", types_out.transpose().tolist()
 		self.filter = _libdsp.lwdf_newFilter()
 		_libdsp.lwdf_initFilter(self.filter,self.order,alphas_out,types_out)
 			
@@ -122,10 +122,8 @@ class Filter():
 # Peak Detector memory structure
 class PD(ctypes.Structure):
 	_fields_ = [("peak", ctypes.c_int32),
-				("output", ctypes.c_int32),
 				("delta", ctypes.c_int32),
-				("mode", ctypes.c_char),
-				("state", ctypes.c_char)]
+				("state", ctypes.c_uint8)]
 				
 # PEAK_DETECTOR* pd_new(void);
 _libdsp.pd_new.argtypes = []
@@ -133,7 +131,7 @@ _libdsp.pd_new.restype = ctypes.POINTER(PD)
 			
 # void pd_init(PEAK_DETECTOR* detector,PEAK_VALUE delta);
 _libdsp.pd_init.argtypes = [	ctypes.POINTER(PD),\
-										ctypes.c_int32]
+								ctypes.c_int32]
 _libdsp.pd_init.restype =		None
 
 # void pd_del(PEAK_DETECTOR* detector);
@@ -145,10 +143,10 @@ _libdsp.pd_write.argtypes = [	ctypes.POINTER(PD),\
 								ctypes.c_int32]
 _libdsp.pd_write.restype =		None
 
-# void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_MODE mode);
+# void pd_reset(PEAK_DETECTOR* detector, PEAK_VALUE value, PEAK_STATE state);
 _libdsp.pd_reset.argtypes = [	ctypes.POINTER(PD),\
 								ctypes.c_int32,\
-								ctypes.c_char]
+								ctypes.c_uint8]
 _libdsp.pd_reset.restype =		None
 
 class PeakDetector():
@@ -163,10 +161,10 @@ class PeakDetector():
 		_libdsp.pd_write(self.detector,value)
 		
 class IPD(ctypes.Structure):
-	_fields_ = [("down", ctypes.c_uint32),
-				("up", ctypes.c_uint32),
-				("hold", ctypes.c_uint32),
-				("output", ctypes.c_uint32),
+	_fields_ = [("integrator", ctypes.c_int32*2),
+				("hold", ctypes.c_int32*2),
+				("output", ctypes.c_int32*2),
+				("last_state", ctypes.c_uint8),
 				("detector", PD)]
 				
 # I_PEAK_DETECTOR* ipd_new(void);
@@ -186,7 +184,7 @@ _libdsp.ipd_del.restype = None
 _libdsp.ipd_write.argtypes = [	ctypes.POINTER(IPD),\
 								ctypes.c_int32,\
 								ctypes.c_int32]
-_libdsp.ipd_write.restype =		None
+_libdsp.ipd_write.restype =		ctypes.c_uint8
 
 class IPeakDetector():
 	def __init__(self, delta=50):
@@ -197,7 +195,7 @@ class IPeakDetector():
 		_libdsp.ipd_del(self.detector)
 
 	def write(self,value,integrand):
-		_libdsp.ipd_write(self.detector,value,integrand)
+		return _libdsp.ipd_write(self.detector,value,integrand)
 
 # PPG Quadrature Delineation
 class DELINEATOR(ctypes.Structure):
