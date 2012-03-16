@@ -46,7 +46,7 @@ void lwdf_gamma2alpha(float gamma, LWDF_ALPHA *alpha, uint8_t *type) {
 	}
 	else if ((gamma >= -0.5) && (gamma <= 0.0)) {
 		*type = 2;
-		alpha_f = abs(gamma);
+		alpha_f = -gamma;
 	}
 	else if ((gamma > -1) && (gamma < -0.5)) {
 		*type = 3;
@@ -110,7 +110,7 @@ void lwdf_initFilter(LWDF_FILTER* filter, uint8_t order, LWDF_ALPHA *alphas, uin
 	return;
 }
 LWDF_FILTER* lwdf_newFilter(void) {
-	return malloc(sizeof(LWDF_FILTER));
+	return (LWDF_FILTER*)malloc(sizeof(LWDF_FILTER));
 }
 void lwdf_delFilter(LWDF_FILTER* filter) {
 	free(filter);
