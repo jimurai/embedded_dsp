@@ -33,31 +33,6 @@ static LWDF_TYPE lwdf_multiply(LWDF_ALPHA alpha, LWDF_TYPE value) {
 	else return t_h;
 }
 
-void lwdf_gamma2alpha(float gamma, LWDF_ALPHA *alpha, uint8_t *type) {
-	float alpha_f = 0;
-	// Determine the adaptor type and alpha value
-	if ((gamma > 0.5) && (gamma < 1.0)) {
-		*type = 0;
-		alpha_f = 1 - gamma;
-	}
-	else if ((gamma > 0.0) && (gamma <= 0.5)) {
-		*type = 1;
-		alpha_f = gamma;
-	}
-	else if ((gamma >= -0.5) && (gamma <= 0.0)) {
-		*type = 2;
-		alpha_f = -gamma;
-	}
-	else if ((gamma > -1) && (gamma < -0.5)) {
-		*type = 3;
-		alpha_f = 1 + gamma;
-	}
-	// Shift up the alpha value for fixed point arithmetic
-	alpha_f *= (1<<16);
-	// Store the alpha
-	*alpha = (LWDF_ALPHA)(alpha_f+0.5);
-}
-
 static void lwdf_processAdaptor(LWDF_ALPHA alpha, uint8_t type, LWDF_PORT* port) {
 	LWDF_TYPE diff;
 	// Type specific processing
@@ -108,12 +83,6 @@ void lwdf_initFilter(LWDF_FILTER* filter, uint8_t order, LWDF_ALPHA *alphas, uin
 		filter->registers[i] = 0;
 	}
 	return;
-}
-LWDF_FILTER* lwdf_newFilter(void) {
-	return (LWDF_FILTER*)malloc(sizeof(LWDF_FILTER));
-}
-void lwdf_delFilter(LWDF_FILTER* filter) {
-	free(filter);
 }
 void lwdf_write(LWDF_FILTER* filter, int16_t input) {
 	LWDF_TYPE temp_value;

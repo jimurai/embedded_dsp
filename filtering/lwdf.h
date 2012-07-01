@@ -45,10 +45,7 @@ typedef struct filter{
 	LWDF_TYPE output[2];
 } LWDF_FILTER;
 
-void lwdf_gamma2alpha(float gamma, LWDF_ALPHA *alpha, uint8_t *type);
 void lwdf_initFilter(LWDF_FILTER* filter, uint8_t order, LWDF_ALPHA *alphas, uint8_t *types);
-LWDF_FILTER* lwdf_newFilter(void);
-void lwdf_delFilter(LWDF_FILTER* filter);
 void lwdf_write(LWDF_FILTER* filter, int16_t input);
 LWDF_TYPE* lwdf_read(LWDF_FILTER* filter);
 LWDF_TYPE lwdf_read_lpf(LWDF_FILTER* filter);
