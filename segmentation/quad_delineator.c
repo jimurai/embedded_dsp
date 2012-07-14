@@ -15,16 +15,6 @@
 #include <stdlib.h>
 #include "quad_delineator.h"
 
-DELINEATOR* quad_new(void) {
-	// Create a new delineator structure
-	DELINEATOR* delineator;
-	delineator = malloc(sizeof(DELINEATOR));
-	if (delineator==NULL) return NULL;
-	return delineator;
-}
-void quad_del(DELINEATOR* delineator) {
-	free(delineator);
-}
 void quad_init(DELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx) {
 	// Store parametric variables
 	delineator->delta[0] = delta_x;

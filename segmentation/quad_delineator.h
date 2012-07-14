@@ -34,8 +34,6 @@ typedef struct delineator_machine {
 	DELIN_VALUE peak[2];
 } DELINEATOR;
 
-DELINEATOR* quad_new(void);
-void quad_del(DELINEATOR* delineator);
 void quad_init(DELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx);
 uint8_t quad_write(DELINEATOR* delineator, DELIN_VALUE x, DELIN_VALUE dx);
 

@@ -37,8 +37,6 @@ typedef struct ppg_delineator_machine {
 	DELINEATOR delineator;
 } PPG_DELINEATOR;
 
-PPG_DELINEATOR* ppgd_new(void);
-void ppgd_del(PPG_DELINEATOR* delineator);
 void ppgd_init(PPG_DELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx);
 uint8_t ppgd_write(PPG_DELINEATOR* delineator, DELIN_VALUE value);
 

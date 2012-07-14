@@ -15,16 +15,6 @@
 #include <stdlib.h>
 #include "ppg_delineator.h"
 
-PPG_DELINEATOR* ppgd_new(void) {
-	// Create a new delineator structure
-	PPG_DELINEATOR* delineator;
-	delineator = malloc(sizeof(PPG_DELINEATOR));
-	if (delineator==NULL) return NULL;
-	return delineator;
-}
-void ppgd_del(PPG_DELINEATOR* delineator) {
-	free(delineator);
-}
 void ppgd_init(PPG_DELINEATOR* delineator, DELIN_VALUE delta_x, DELIN_VALUE delta_dx) {
 	unsigned int i;
 	delineator->x[0] = 0;
