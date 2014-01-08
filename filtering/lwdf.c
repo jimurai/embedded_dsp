@@ -114,16 +114,15 @@ static void lwdf_processAdaptor(LWDF_ALPHA alpha, uint8_t type, LWDF_PORT* port)
 	return;
 }
 
-void lwdf_initFilter(LWDF_FILTER* filter, uint8_t order, LWDF_ALPHA *alphas, uint8_t *types) {
+void lwdf_initFilter(LWDF_FILTER* filter, LWDF_ALPHA *alphas, uint8_t *types) {
 	// Don't bother with even order filters
-	if ((order%2)==0) {
+	if ((LWDF_ORDER%2)==0) {
 		// TODO: need some error handling
 		return;
 	}
 	// Create a new filter structure
-	filter->order = order;
 	uint8_t i;
-	for (i=0;i<order;i++) {
+	for (i=0;i<LWDF_ORDER;i++) {
 		// Initialise all adaptors
 		filter->alphas[i] = alphas[i];
 		filter->types[i] = types[i];
@@ -149,7 +148,7 @@ void lwdf_write(LWDF_FILTER* filter, int16_t input) {
 	temp_value = temp_port.A.out;
 	filter->registers[0] = temp_port.B.out;
 	// Process the top branch
-	for (i=0; i<(filter->order>>2); i++) {
+	for (i=0; i<(LWDF_ORDER>>2); i++) {
 		// Get register addresses
 		j = (i<<2)+3;
 		k = j + 1;
@@ -168,7 +167,7 @@ void lwdf_write(LWDF_FILTER* filter, int16_t input) {
 	filter->output[0] = temp_value;
 	// Process the bottom branch
 	temp_value = ((LWDF_TYPE)input<<16);
-	for (i=0; i<((filter->order+1)>>2); i++) {
+	for (i=0; i<((LWDF_ORDER+1)>>2); i++) {
 		// Get register addresses
 		j = (i<<2)+1;
 		k = j + 1;

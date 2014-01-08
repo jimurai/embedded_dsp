@@ -48,6 +48,9 @@ extern "C" {
  *	Lattice Wave Digital Filter declarations
  */
 #define LWDF_MAX_ORDER 9
+#ifndef LWDF_ORDER
+#define LWDF_ORDER LWDF_MAX_ORDER
+#endif
 typedef int32_t LWDF_TYPE;
 typedef uint16_t LWDF_ALPHA;
 
@@ -61,15 +64,14 @@ typedef struct port {
 } LWDF_PORT;
 
 typedef struct filter{
-	uint8_t order;
-	LWDF_ALPHA alphas[LWDF_MAX_ORDER];
-	uint8_t types[LWDF_MAX_ORDER];
-	LWDF_TYPE registers[LWDF_MAX_ORDER];
+	LWDF_ALPHA alphas[LWDF_ORDER];
+	uint8_t types[LWDF_ORDER];
+	LWDF_TYPE registers[LWDF_ORDER];
 	LWDF_TYPE output[2];
 } LWDF_FILTER;
 
 void lwdf_gamma2alpha(float gamma, LWDF_ALPHA *alpha, uint8_t *type);
-void lwdf_initFilter(LWDF_FILTER* filter, uint8_t order, LWDF_ALPHA *alphas, uint8_t *types);
+void lwdf_initFilter(LWDF_FILTER* filter, LWDF_ALPHA *alphas, uint8_t *types);
 LWDF_FILTER* lwdf_newFilter(void);
 void lwdf_delFilter(LWDF_FILTER* filter);
 void lwdf_write(LWDF_FILTER* filter, int16_t input);
